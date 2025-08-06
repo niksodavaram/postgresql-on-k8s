@@ -1,0 +1,77 @@
+# k8s/api-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodejs-api
+  template:
+    metadata:
+      labels:
+        app: nodejs-api
+    spec:
+      containers:
+        - name: nodejs-api
+          image: niksodavaram/nodejs-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            # Database configs
+            - name: PGHOST
+              value: "postgres"
+            - name: PGPORT
+              value: "5432"
+            - name: PGDATABASE
+              value: "devdb"
+            - name: PGUSER
+              value: "devuser"
+            - name: PGPASSWORD
+              value: "devpass"
+            # JWT config for development
+            - name: JWT_SECRET
+              value: "your-dev-secret-key"
+            - name: JWT_EXPIRES_IN
+              value: "24h"
+            # API Keys from secrets
+            - name: ADMIN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-keys
+                  key: ADMIN_API_KEY
+            - name: USER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-keys
+                  key: USER_API_KEY
+            - name: SERVICE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-keys
+                  key: SERVICE_API_KEY
+            # API Key Settings
+            - name: API_KEY_HEADER_NAME
+              value: "X-API-Key"
+            - name: RATE_LIMIT_WINDOW_MS
+              value: "900000" # 15 minutes
+            - name: RATE_LIMIT_MAX_REQUESTS
+              value: "100"
+            - name: APPDYNAMICS_CONTROLLER_HOST_NAME
+              value: "your-controller-host"
+            - name: APPDYNAMICS_CONTROLLER_PORT
+              value: "8090"
+            - name: APPDYNAMICS_CONTROLLER_SSL_ENABLED
+              value: "true"
+            - name: APPDYNAMICS_AGENT_ACCOUNT_NAME
+              value: "your-account-name"
+            - name: APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY
+              value: "your-access-key"
+            - name: APPDYNAMICS_AGENT_APPLICATION_NAME
+              value: "nodejs-api"
+            - name: APPDYNAMICS_AGENT_TIER_NAME
+              value: "api-tier"
+            - name: APPDYNAMICS_AGENT_NODE_NAME
+              value: "api-node"

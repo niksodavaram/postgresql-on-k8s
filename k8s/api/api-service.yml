@@ -1,0 +1,17 @@
+# k8s/api-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+  labels:
+    app: nodejs-api
+spec:
+  type: NodePort  # or ClusterIP if you're using Ingress
+  ports:
+    - port: 80
+      targetPort: 3000
+      nodePort: 30009  # Following your port pattern (30007 postgres, 30008 pgadmin)
+      protocol: TCP
+      name: http
+  selector:
+    app: nodejs-api
